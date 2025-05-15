@@ -1,7 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("short_form");
-    const input = document.getElementById("original_URL");
+    const input = document.getElementById("original_url");
     const resultado = document.getElementById("resultado");
 
     form.addEventListener("submit", async (event) => {
@@ -26,8 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ url })
             });
 
-            const shortURL = await response.text();
+            // Verificar si la respuesta es correcta    
+            if (!response.ok) {
+                throw new Error("Error en la respuesta del servidor");
+            }
 
+            const data = await response.json();
+            const shortURL = data.short_url;
+
+            // Mostrar la URL acortada
             resultado.innerHTML = `<p>URL acortada: <a href="${shortURL}" target="_blank">${shortURL}</a></p>`;
             input.value = ""; // Limpiar el input
         } catch (error) {

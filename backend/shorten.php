@@ -4,7 +4,14 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
-require_once 'backend/utils/config.php';
+require_once 'config.php';
+
+// Verificamos si la solicitud es POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Método no permitido']);
+    exit;
+}
 
 // Leemos el cuerpo de la solicitud
 $input = file_get_contents("php://input");
