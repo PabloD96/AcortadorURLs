@@ -4,6 +4,11 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
+ini_set('log_errors', 1);  // Habilitar registro de errores
+ini_set('error_log', 'C:/xampp/apache/logs/error.log');  // Ruta al archivo de log
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
 require_once 'config.php';
 
 // Verificamos si la solicitud es POST
@@ -20,6 +25,7 @@ $input = file_get_contents("php://input");
 $data = json_decode($input, true);
 
 // Verificamos si se recibió la URL
+// Si no se recibió el JSON o no contiene la URL, devolvemos un error
 if (!$input || !isset($data['url'])) {
     http_response_code(400);
     echo json_encode(['error' => 'URL no proporcionada']);
@@ -29,12 +35,16 @@ if (!$input || !isset($data['url'])) {
 // Obtenemos la URL
 $url = trim($data['url']);
 
+
 // Verificamos si la URL es válida
 if (!filter_var($url, FILTER_VALIDATE_URL)) {
     http_response_code(400);
     echo json_encode(['error' => 'URL no válida']);
     exit;
 }
+
+// Obtenemos el dominio
+$domain = parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST);
 
 // Generamos un código corto de 6 caracteres para la URL
 function generarCodigoCorto($length = 6) {
@@ -52,7 +62,8 @@ $stmt->execute([$url]);
 $urlRepetida = $stmt->fetchColumn();
 
 if ($urlRepetida) {
-    echo json_encode(['short_url' => "https://tu-dominio.com/" . $urlRepetida]);
+    $short_url = rtrim($domain, '/') . '/' . $urlRepetida;
+    echo json_encode(['short_url' => $short_url]);
     exit;
 }
 
@@ -66,11 +77,12 @@ do{
 
 // Insertamos la URL original y el código corto en la base de datos
 
-$stmt = $pdo->prepare("INSERT INTO urls (original_url, short_url) VALUES (?, ?)");
+$stmt = $pdo->prepare("INSERT INTO urls (original_url, short_url, dominio) VALUES (?, ?, ?)");
 
-if ($stmt->execute([$url, $codigo_corto])) {
+if ($stmt->execute([$url, $codigo_corto, $domain])) {
     // Si la inserción fue exitosa, devolvemos el código corto
-    echo json_encode(['short_url' => "https://tu-dominio.com/" . $codigo_corto]);
+    $short_url = rtrim($domain, '/') . '/' . $codigo_corto;
+    echo json_encode(['short_url' => $short_url]);
 } else {
     // Si hubo un error al insertar, devolvemos un mensaje de error
     http_response_code(500);

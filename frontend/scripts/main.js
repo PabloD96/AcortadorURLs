@@ -18,12 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Envío URL al backend
         try {
-            const response = await fetch("/api/shorten", {
+            const response = await fetch("../backend/shorten.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ url })
+                body: JSON.stringify({
+                    url,
+                    domain: window.location.origin
+                })
             });
 
             // Verificar si la respuesta es correcta    

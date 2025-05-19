@@ -20,10 +20,23 @@ input::placeholder {
     color: #333;
 }
 
+button:hover {
+    color: #fff;
+    box-shadow: inset 0 -100px 0 0 rgb(80, 147, 112);
+    transform: scale(1.05);
+
+}
+
+button:active {
+    box-shadow: inset 0 -100px 0 0 rgb(7, 65, 35);
+    transform: scale(0.95);
+}
+
 button {
-    background-color: rgb(80, 147, 112);
+    background-color: rgb(209, 212, 209);
     border: 2px solid #000000;
     padding: 10px;
+    margin-left: auto;
     border-radius: 5px;
     cursor: pointer;
     color: #333;
